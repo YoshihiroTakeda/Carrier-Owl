@@ -66,6 +66,22 @@ def search_keyword(
     return results
 
 
+def mask(labels, text):
+    def _make_mask(ltx_text):
+        raw_ltx = ltx_text.group(0)
+        label = f'(L{len(labels) + 1:04})'
+        labels[label] = raw_ltx
+        return label
+
+    text = re.sub(r'\$([^\$]+)\$', _make_mask, text)
+    return text
+
+def unmask(labels, text):
+    for mask, raw in labels.items():
+        text = text.replace(mask, raw)
+    return text
+
+
 def send2app(text: str, slack_id: str, line_token: str) -> None:
     # slack
     if slack_id is not None:
@@ -135,10 +151,16 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     '''
 
     sleep_time = 1
+    
+    # mask latex mathline
+    labels = {}
+    print(repr(from_text))
+    from_text = mask(labels, from_text)
 
     # urlencode
     from_text = urllib.parse.quote(from_text, safe='')
     from_text = from_text.replace('%2F', '%5C%2F')
+    
 
     # url作成
     url = 'https://www.deepl.com/translator#' \
@@ -166,6 +188,11 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
 
     # ブラウザ停止
     driver.quit()
+    
+    # unmask latex mathline
+    to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
+    to_text = unmask(labels, to_text)
+
     return to_text
 
 
@@ -173,6 +200,7 @@ def get_text_from_page_source(html: str) -> str:
     soup = BeautifulSoup(html, features='lxml')
     target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
     text = target_elem.text
+    text = ' '.join(text.split())
     return text
 
 
@@ -196,7 +224,7 @@ def main():
     channels = config['channels']
     score_threshold = float(config['score_threshold'])
     
-    today = datetime.datetime.today()
+    today = datetime.datetime.today() 
     deadline = today - datetime.timedelta(days=1)
     previous_deadline = today - datetime.timedelta(days=2)
     if today.weekday()==0:  # announce data is Monday
@@ -227,7 +255,7 @@ def main():
 #         slack_id = os.getenv("SLACK_ID") or args.slack_id
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
-#         break
+        break
 
 
 if __name__ == "__main__":
