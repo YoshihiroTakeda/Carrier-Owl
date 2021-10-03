@@ -224,7 +224,7 @@ def main():
     channels = config['channels']
     score_threshold = float(config['score_threshold'])
     
-    today = datetime.datetime.today() 
+    today = datetime.datetime.today()
     deadline = today - datetime.timedelta(days=1)
     previous_deadline = today - datetime.timedelta(days=2)
     if today.weekday()==0:  # announce data is Monday
@@ -255,7 +255,7 @@ def main():
 #         slack_id = os.getenv("SLACK_ID") or args.slack_id
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
-        break
+#         break
 
 
 if __name__ == "__main__":
