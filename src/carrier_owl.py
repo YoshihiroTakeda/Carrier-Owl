@@ -97,13 +97,19 @@ def get_channel_id(channel_names):
 
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
-    storage_term = 60 * 60 * 24 * 30  # 一ヶ月
-    current_ts = int(datetime.datetime.now().strftime('%s'))
+    days = 31
+    storage_term = 60 * 60 * 24 * days  # 1ヶ月
+    now = datetime.datetime.now()
+    current_ts = int(now.strftime('%s'))
     # Store conversation history
     try:
         # get history
+        endline = now - datetime.timedelta(days=days)
+        endline_ts = endline.strftime('%s') + '.000000'
         result = client.conversations_history(
-            channel=slack_channel
+            channel=slack_channel,
+            latest=endline_ts,
+            limit=100
         )
         conversation_history = result["messages"]
         # delete
@@ -116,6 +122,7 @@ def delete_history_message(slack_channel: str) -> None:
                             ts=message['ts']
                         )
                         logger.info(del_result)
+                        time.sleep(2)
     except SlackApiError as e:
         # You will get a SlackApiError if "ok" is False
         print('ERROR!')
