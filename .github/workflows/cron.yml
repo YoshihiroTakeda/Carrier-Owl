@@ -32,6 +32,8 @@ jobs:
           poetry run python src/carrier_owl.py
         env:
           SLACK_ID: ${{ secrets.SLACK_ID }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID_DEV: ${{ secrets.SLACK_CHANNEL_ID_DEV }}
           SLACK_ID_ASTROPH_GA: ${{ secrets.SLACK_ID_ASTROPH_GA }}
           SLACK_ID_ASTROPH_CO: ${{ secrets.SLACK_ID_ASTROPH_CO }}
           SLACK_ID_ASTROPH_HE: ${{ secrets.SLACK_ID_ASTROPH_HE }}
