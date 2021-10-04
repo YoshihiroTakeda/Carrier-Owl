@@ -123,12 +123,21 @@ def delete_history_message(slack_channel: str) -> None:
         assert e.response["error"]    # str like 'invalid_auth', 'channel_not_found'
     
 
-def send2app(text: str, slack_id: str, line_token: str) -> None:
-    # slack
+def send2app(text: str, slack_channel: str, line_token: str) -> None:
     if slack_id is not None:
-        slack = slackweb.Slack(url=slack_id)
-        slack.notify(text=text, mrkdwn='false')
+        client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
 
+        try:
+            response = client.chat_postMessage(
+                channel=slack_channel,
+                text=text,
+            ) 
+        except SlackApiError as e:
+            # You will get a SlackApiError if "ok" is False
+            print('ERROR!')
+            print(e)
+            assert e.response["error"]    # str like 'invalid_auth', 'channel_not_found'
+    
     # line
     if line_token is not None:
         line_notify_api = 'https://notify-api.line.me/api/notify'
@@ -264,15 +273,14 @@ def main():
     config = get_config()
     channels = config['channels']
     score_threshold = float(config['score_threshold'])
-    slack_channels = config['slack_channels']
+    slack_channel_names = channels.keys()
     
 #     # delete  
-    channel_dict = get_channel_id(slack_channels)
+    channel_dict = get_channel_id(slack_channel_names)
 #     for channel_id in channel_dict.values:
 #         delete_history_message(channel_id)
     # for debug
-    delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
-    return
+#     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
 
     # post
     today = datetime.datetime.today()
@@ -303,6 +311,7 @@ def main():
 #             print('{}: {}'.format(key, val))
            
 #         slack_id = os.getenv("SLACK_ID_"+channel_name)
+        slack_id = channel_dict[channel_name]
         slack_id = os.getenv("SLACK_ID") or args.slack_id
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
