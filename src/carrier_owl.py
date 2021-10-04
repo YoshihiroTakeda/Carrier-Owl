@@ -67,7 +67,6 @@ def search_keyword(
                     url=url, title=title_trans, en_title=title, abstract=abstract_trans, en_abstract=abstract,
                     score=score, words=hit_keywords)
             results.append(result)
-        break
     return results
 
 
@@ -98,7 +97,7 @@ def get_channel_id(channel_names):
 
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
-    storage_term = 60 * 60 * 24 * 0  # 一ヶ月
+    storage_term = 60 * 60 * 24 * 30  # 一ヶ月
     current_ts = int(datetime.datetime.now().strftime('%s'))
     # Store conversation history
     try:
@@ -278,11 +277,11 @@ def main():
     
 #     # delete  
     channel_dict = get_channel_id(slack_channel_names)
-#     for channel_id in channel_dict.values:
-#         delete_history_message(channel_id)
-    # for debug
-    delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
-    return
+    for channel_id in channel_dict.values:
+        delete_history_message(channel_id)
+#     # for debug
+#     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+#     return
 
     # post
     today = datetime.datetime.today()
@@ -308,18 +307,11 @@ def main():
                                sort_by='submittedDate',
                                iterative=False)
         results = search_keyword(articles, keywords, score_threshold)
-#         # debug
-#         for key, val in os.environ.items():
-#             print('{}: {}'.format(key, val))
-           
-#         slack_id = os.getenv("SLACK_ID_"+channel_name)
-#         slack_id = channel_dict[channel_name]
-        print(channel_name)
-        print(channel_dict.keys())
-        slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id
+
+        slack_id = channel_dict[channel_name]
+#         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
-        break
 
 
 if __name__ == "__main__":
