@@ -125,7 +125,7 @@ def delete_history_message(slack_channel: str) -> None:
     
 
 def send2app(text: str, slack_channel: str, line_token: str) -> None:
-    if slack_id is not None:
+    if slack_channel is not None:
         client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
 
         try:
@@ -147,7 +147,7 @@ def send2app(text: str, slack_channel: str, line_token: str) -> None:
         requests.post(line_notify_api, headers=headers, data=data)
 
 
-def notify(results: list, slack_id: str, line_token: str) -> None:
+def notify(results: list, slack_channel: str, line_token: str) -> None:
     # 通知
     star = '*'*80
     
@@ -193,7 +193,7 @@ def notify(results: list, slack_id: str, line_token: str) -> None:
                f'\n \t {en_abstract}'\
                f'\n {star}'
 
-        send2app(text, slack_id, line_token)
+        send2app(text, slack_channel, line_token)
 
 
 def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
