@@ -98,7 +98,7 @@ def get_channel_id(channel_names):
 
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
-    storage_term = 60 * 60 * 24 * 30  # 一ヶ月
+    storage_term = 60 * 60 * 24 * 0  # 一ヶ月
     current_ts = int(datetime.datetime.now().strftime('%s'))
     # Store conversation history
     try:
@@ -107,8 +107,6 @@ def delete_history_message(slack_channel: str) -> None:
             channel=slack_channel
         )
         conversation_history = result["messages"]
-        print(conversation_history)
-        return
         # delete
         for message in conversation_history:
             if 'bot_id' in message:
