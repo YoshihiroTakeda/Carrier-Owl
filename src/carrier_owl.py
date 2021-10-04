@@ -165,7 +165,7 @@ def notify(results: list, slack_channel: str, line_token: str) -> None:
     
     n_articles = len(results)
     text = f'{star}\n \t \t {day_range}\tnum of articles = {n_articles}\n{star}'
-    send2app(text, slack_id, line_token)
+    send2app(text, slack_channel, line_token)
     # descending
     for result in sorted(results, reverse=True, key=lambda x: x.score):
         url = result.url
