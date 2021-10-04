@@ -103,7 +103,7 @@ def delete_history_message(slack_channel: str) -> None:
     try:
         # get history
         result = client.conversations_history(
-            channel=os.getenv("SLACK_CHANNEL_ID_DEV") #slack_channel
+            channel=slack_channel
         )
         conversation_history = result["messages"]
         # delete
@@ -271,7 +271,7 @@ def main():
 #     for channel_id in channel_dict.values:
 #         delete_history_message(channel_id)
     # for debug
-    delete_history_message('dev')
+    delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
     return
 
     # post
