@@ -85,6 +85,15 @@ def unmask(labels, text):
         text = text.replace(mask, raw)
     return text
 
+def get_channel_id(channel_names):
+    client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+    conv_list = client.conversations_list()["channels"]
+    channel_dict = {}
+    for channel in conv_list:
+        if channel['name'] in channel_names:
+            channel_dict[channel['name']] = channel['id']
+    return channel_dict
+
 
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
@@ -94,20 +103,19 @@ def delete_history_message(slack_channel: str) -> None:
     try:
         # get history
         result = client.conversations_history(
-            channel=os.getenv("SLACK_CHANNEL_ID_DEV") #"#"+slack_channel
+            channel=os.getenv("SLACK_CHANNEL_ID_DEV") #slack_channel
         )
         conversation_history = result["messages"]
-        print(conversation_history)
-        return
         # delete
         for message in conversation_history:
-            if message['user']==os.getenv('SLACK_BOT_USERID'):
-                if current_ts - int(re.sub(r'\.\d+$', '', message['ts'])) > storage_term:
-                    del_result = client.chat_delete(
-                        channel="#"+slack_channel,
-                        ts=message['ts']
-                    )
-                    logger.info(del_result)
+            if 'bot_id' in message:
+                if message['bot_id']==os.getenv('SLACK_BOT_ID'):
+                    if current_ts - int(re.sub(r'\.\d+$', '', message['ts'])) > storage_term:
+                        del_result = client.chat_delete(
+                            channel=slack_channel,
+                            ts=message['ts']
+                        )
+                        logger.info(del_result)
     except SlackApiError as e:
         # You will get a SlackApiError if "ok" is False
         print('ERROR!')
@@ -259,8 +267,9 @@ def main():
     slack_channels = config['slack_channels']
     
 #     # delete  
-#     for channel_name in slack_channels:
-#         delete_history_message(channel_name)
+    channel_dict = get_channel_id(slack_channels)
+#     for channel_id in channel_dict.values:
+#         delete_history_message(channel_id)
     # for debug
     delete_history_message('dev')
     return
