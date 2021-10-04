@@ -1,26 +1,26 @@
 # slackチャンネル及びarxiv学問領域の指定
 channels:
-        ASTROPH_GA:
+        astro-ph_ga:
                 subject: 'cat:astro-ph.GA'
                 keywords:
                         hoge: 1
-        ASTROPH_CO: 
+        astro-ph_co: 
                 subject: 'cat:astro-ph.CO'
                 keywords:
                         hoge: 1
-        ASTROPH_EP: 
+        astro-ph_ep: 
                 subject: 'cat:astro-ph.EP'
                 keywords:
                         huga: 1
-        ASTROPH_HE: 
+        astro-ph_he: 
                 subject: 'cat:astro-ph.HE'
                 keywords:
                         huga: 1
-        ASTROPH_IM: 
+        astro-ph_im: 
                 subject: 'cat:astro-ph.IM'
                 keywords:
                         hoge: 1
-        ASTROPH_SR: 
+        astro-ph_sr: 
                 subject: 'cat:astro-ph.SR'
                 keywords:
                         huga: 1
@@ -28,13 +28,3 @@ channels:
 
 # 通知の閾値
 score_threshold: 0
-
-
-# 履歴削除をするslack channel(Publicにするためにidではなく名称にする)
-slack_channels:
-        - astro-ph_ga
-        - astro-ph_co
-        - astro-ph_ep
-        - astro-ph_he
-        - astro-ph_im
-        - astro-ph_sr
