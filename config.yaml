@@ -25,6 +25,16 @@ channels:
                 keywords:
                         huga: 1
         
-        
+
 # 通知の閾値
 score_threshold: 0
+
+
+# 履歴削除をするslack channel(Publicにするためにidではなく名称にする)
+slack_channels:
+        - astro-ph_ga
+        - astro-ph_co
+        - astro-ph_ep
+        - astro-ph_he
+        - astro-ph_im
+        - astro-ph_sr
