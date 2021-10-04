@@ -315,7 +315,7 @@ def main():
 #         slack_id = channel_dict[channel_name]
         print(channel_name)
         print(channel_dict.keys())
-        slack_id = os.getenv("SLACK_ID") or args.slack_id
+        slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
         break
