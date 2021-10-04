@@ -2,11 +2,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import os
+import logging
 import re
 import time
 import yaml
 import datetime
 import slackweb
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 import argparse
 import textwrap
 from bs4 import BeautifulSoup
@@ -17,6 +20,7 @@ import arxiv
 import requests
 # setting
 warnings.filterwarnings('ignore')
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -81,6 +85,35 @@ def unmask(labels, text):
         text = text.replace(mask, raw)
     return text
 
+
+def delete_history_message(slack_channel: str) -> None:
+    client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+    storage_term = 60 * 60 * 24 * 30  # 一ヶ月
+    current_ts = int(datetime.now().strftime('%s'))
+    # Store conversation history
+    try:
+        # get history
+        result = client.conversations_history(
+            channel="#"+slack_channel
+        )
+        conversation_history = result["messages"]
+        print(conversation_history)
+        return
+        # delete
+        for message in conversation_history:
+            if message['user']==os.getenv('SLACK_BOT_USERID'):
+                if current_ts - int(re.sub(r'\.\d+$', '', message['ts'])) > storage_term:
+                    del_result = client.chat_delete(
+                        channel="#"+slack_channel,
+                        ts=message['ts']
+                    )
+                    logger.info(del_result)
+    except SlackApiError as e:
+        # You will get a SlackApiError if "ok" is False
+        print('ERROR!')
+        print(e)
+        assert e.response["error"]    # str like 'invalid_auth', 'channel_not_found'
+    
 
 def send2app(text: str, slack_id: str, line_token: str) -> None:
     # slack
@@ -223,7 +256,16 @@ def main():
     config = get_config()
     channels = config['channels']
     score_threshold = float(config['score_threshold'])
+    slack_channels = config['slack_channels']
     
+#     # delete  
+#     for channel_name in slack_channels:
+#         delete_history_message(channel_name)
+    # for debug
+    delete_history_message('dev')
+    return
+
+    # post
     today = datetime.datetime.today()
     deadline = today - datetime.timedelta(days=1)
     previous_deadline = today - datetime.timedelta(days=2)
@@ -251,11 +293,11 @@ def main():
 #         for key, val in os.environ.items():
 #             print('{}: {}'.format(key, val))
            
-        slack_id = os.getenv("SLACK_ID_"+channel_name)
-#         slack_id = os.getenv("SLACK_ID") or args.slack_id
+#         slack_id = os.getenv("SLACK_ID_"+channel_name)
+        slack_id = os.getenv("SLACK_ID") or args.slack_id
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
-#         break
+        break
 
 
 if __name__ == "__main__":
