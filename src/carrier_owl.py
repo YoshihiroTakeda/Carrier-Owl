@@ -107,6 +107,8 @@ def delete_history_message(slack_channel: str) -> None:
             channel=slack_channel
         )
         conversation_history = result["messages"]
+        print(conversation_history)
+        return
         # delete
         for message in conversation_history:
             if 'bot_id' in message:
@@ -281,7 +283,8 @@ def main():
 #     for channel_id in channel_dict.values:
 #         delete_history_message(channel_id)
     # for debug
-#     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+    delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+    return
 
     # post
     today = datetime.datetime.today()
