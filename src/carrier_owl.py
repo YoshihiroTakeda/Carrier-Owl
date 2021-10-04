@@ -2,11 +2,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import os
+import logging
 import re
 import time
 import yaml
 import datetime
 import slackweb
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 import argparse
 import textwrap
 from bs4 import BeautifulSoup
@@ -17,6 +20,7 @@ import arxiv
 import requests
 # setting
 warnings.filterwarnings('ignore')
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -81,13 +85,59 @@ def unmask(labels, text):
         text = text.replace(mask, raw)
     return text
 
+def get_channel_id(channel_names):
+    client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+    conv_list = client.conversations_list()["channels"]
+    channel_dict = {}
+    for channel in conv_list:
+        if channel['name'] in channel_names:
+            channel_dict[channel['name']] = channel['id']
+    return channel_dict
 
-def send2app(text: str, slack_id: str, line_token: str) -> None:
-    # slack
-    if slack_id is not None:
-        slack = slackweb.Slack(url=slack_id)
-        slack.notify(text=text, mrkdwn='false')
 
+def delete_history_message(slack_channel: str) -> None:
+    client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+    storage_term = 60 * 60 * 24 * 30  # 一ヶ月
+    current_ts = int(datetime.datetime.now().strftime('%s'))
+    # Store conversation history
+    try:
+        # get history
+        result = client.conversations_history(
+            channel=slack_channel
+        )
+        conversation_history = result["messages"]
+        # delete
+        for message in conversation_history:
+            if 'bot_id' in message:
+                if message['bot_id']==os.getenv('SLACK_BOT_ID'):
+                    if current_ts - int(re.sub(r'\.\d+$', '', message['ts'])) > storage_term:
+                        del_result = client.chat_delete(
+                            channel=slack_channel,
+                            ts=message['ts']
+                        )
+                        logger.info(del_result)
+    except SlackApiError as e:
+        # You will get a SlackApiError if "ok" is False
+        print('ERROR!')
+        print(e)
+        assert e.response["error"]    # str like 'invalid_auth', 'channel_not_found'
+    
+
+def send2app(text: str, slack_channel: str, line_token: str) -> None:
+    if slack_channel is not None:
+        client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+
+        try:
+            response = client.chat_postMessage(
+                channel=slack_channel,
+                text=text,
+            ) 
+        except SlackApiError as e:
+            # You will get a SlackApiError if "ok" is False
+            print('ERROR!')
+            print(e)
+            assert e.response["error"]    # str like 'invalid_auth', 'channel_not_found'
+    
     # line
     if line_token is not None:
         line_notify_api = 'https://notify-api.line.me/api/notify'
@@ -96,7 +146,7 @@ def send2app(text: str, slack_id: str, line_token: str) -> None:
         requests.post(line_notify_api, headers=headers, data=data)
 
 
-def notify(results: list, slack_id: str, line_token: str) -> None:
+def notify(results: list, slack_channel: str, line_token: str) -> None:
     # 通知
     star = '*'*80
     
@@ -114,7 +164,7 @@ def notify(results: list, slack_id: str, line_token: str) -> None:
     
     n_articles = len(results)
     text = f'{star}\n \t \t {day_range}\tnum of articles = {n_articles}\n{star}'
-    send2app(text, slack_id, line_token)
+    send2app(text, slack_channel, line_token)
     # descending
     for result in sorted(results, reverse=True, key=lambda x: x.score):
         url = result.url
@@ -142,7 +192,7 @@ def notify(results: list, slack_id: str, line_token: str) -> None:
                f'\n \t {en_abstract}'\
                f'\n {star}'
 
-        send2app(text, slack_id, line_token)
+        send2app(text, slack_channel, line_token)
 
 
 def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
@@ -223,7 +273,17 @@ def main():
     config = get_config()
     channels = config['channels']
     score_threshold = float(config['score_threshold'])
+    slack_channel_names = channels.keys()
     
+#     # delete  
+    channel_dict = get_channel_id(slack_channel_names)
+    for channel_id in channel_dict.values:
+        delete_history_message(channel_id)
+#     # for debug
+#     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+#     return
+
+    # post
     today = datetime.datetime.today()
     deadline = today - datetime.timedelta(days=1)
     previous_deadline = today - datetime.timedelta(days=2)
@@ -247,15 +307,11 @@ def main():
                                sort_by='submittedDate',
                                iterative=False)
         results = search_keyword(articles, keywords, score_threshold)
-#         # debug
-#         for key, val in os.environ.items():
-#             print('{}: {}'.format(key, val))
-           
-        slack_id = os.getenv("SLACK_ID_"+channel_name)
-#         slack_id = os.getenv("SLACK_ID") or args.slack_id
+
+        slack_id = channel_dict[channel_name]
+#         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
-#         break
 
 
 if __name__ == "__main__":
