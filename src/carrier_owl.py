@@ -89,7 +89,7 @@ def unmask(labels, text):
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
     storage_term = 60 * 60 * 24 * 30  # 一ヶ月
-    current_ts = int(datetime.now().strftime('%s'))
+    current_ts = int(datetime.datetime.now().strftime('%s'))
     # Store conversation history
     try:
         # get history
