@@ -67,6 +67,7 @@ def search_keyword(
                     url=url, title=title_trans, en_title=title, abstract=abstract_trans, en_abstract=abstract,
                     score=score, words=hit_keywords)
             results.append(result)
+        break
     return results
 
 
