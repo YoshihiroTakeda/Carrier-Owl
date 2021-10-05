@@ -67,7 +67,7 @@ def search_keyword(
                     url=url, title=title_trans, en_title=title, abstract=abstract_trans, en_abstract=abstract,
                     score=score, words=hit_keywords)
             results.append(result)
-        break  # debug
+#         break  # debug
     return results
 
 
@@ -212,9 +212,6 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
 
     sleep_time = 1
     
-    print(urllib.parse.quote(from_text, safe=''))  # debug
-
-    
     # mask latex mathline
     labels = {}
     print(repr(from_text))
@@ -321,11 +318,11 @@ def main():
                                iterative=False)
         results = search_keyword(articles, keywords, score_threshold)
 
-#         slack_id = channel_dict[channel_name]
-        slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
+        slack_id = channel_dict[channel_name]
+#         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token)
-        break  # debug
+#         break  # debug
 
 
 if __name__ == "__main__":
