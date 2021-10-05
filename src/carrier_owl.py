@@ -220,6 +220,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     # urlencode
     from_text = urllib.parse.quote(from_text, safe='')
     from_text = from_text.replace('%2F', '%5C%2F')
+    print(from_text)  # debug
     
 
     # url作成
