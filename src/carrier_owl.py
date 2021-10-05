@@ -284,7 +284,7 @@ def main():
     
 #     # delete  
     channel_dict = get_channel_id(slack_channel_names)
-    for channel_id in channel_dict.values:
+    for channel_id in channel_dict.values():
         delete_history_message(channel_id)
 #     # for debug
 #     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
