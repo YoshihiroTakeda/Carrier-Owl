@@ -138,6 +138,7 @@ def send2app(text: str, slack_channel: str, line_token: str) -> None:
             response = client.chat_postMessage(
                 channel=slack_channel,
                 text=text,
+                unfurl_links=False
             ) 
         except SlackApiError as e:
             # You will get a SlackApiError if "ok" is False
