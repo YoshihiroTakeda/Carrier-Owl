@@ -327,10 +327,12 @@ def main():
         previous_deadline = previous_deadline - datetime.timedelta(days=2)
     deadline_str = deadline.strftime('%Y%m%d')
     previous_deadline_str = previous_deadline.strftime('%Y%m%d')
-    
     for channel_name, channel_config in channels.items():
-        print(mention_dict[mention_dict.keys()[0]][channel_name])
-        break
+        for name in mention_dict:
+            print(mention_dict[name][channel_name])
+    return
+    for channel_name, channel_config in channels.items():
+
         subject = channel_config['subject']
         keywords = channel_config['keywords']
         # datetime format YYYYMMDDHHMMSS
