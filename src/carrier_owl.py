@@ -329,6 +329,8 @@ def main():
     previous_deadline_str = previous_deadline.strftime('%Y%m%d')
     
     for channel_name, channel_config in channels.items():
+        print(mention_dict[mention_dict.keys()[0]][channel_name])
+        break
         subject = channel_config['subject']
         keywords = channel_config['keywords']
         # datetime format YYYYMMDDHHMMSS
@@ -344,8 +346,7 @@ def main():
         slack_id = channel_dict[channel_name]
         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
-        print(mention_dict[mention_dict.keys()[0]][channel_name])
-        break
+
         notify(results, slack_id, line_token, mention_dict, channel_name)
         break  # debug
 
