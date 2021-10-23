@@ -318,8 +318,8 @@ def main():
 
     # post
     today = datetime.datetime.today()
-    deadline = today - datetime.timedelta(days=1)
-    previous_deadline = today - datetime.timedelta(days=2)
+    deadline = today - datetime.timedelta(days=1) - datetime.timedelta(days=1)  # debug
+    previous_deadline = today - datetime.timedelta(days=2) - datetime.timedelta(days=1) # debug
     if today.weekday()==0:  # announce data is Monday
         deadline = deadline - datetime.timedelta(days=2)
         previous_deadline = previous_deadline - datetime.timedelta(days=2)
