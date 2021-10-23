@@ -7,8 +7,6 @@
 
 不具合などがあればTwitterの [#carrier_owl](https://twitter.com/search?q=#carrier_owl&src=typed_query) で情報共有を行っています。
 
-**本レポジトリは開発途中であり、正常に動作しない可能性があります。また設定方法も下記とは異なる部分があります。**
-
 
 ## About Carrier Owl
 
