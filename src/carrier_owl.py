@@ -100,7 +100,7 @@ def get_channel_id(channel_names):
 
 def get_user_id(usernames: dict):
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
-    user_dict = client.user_list()["members"]
+    user_dict = client.users_list()["members"]
     user_id_dict = {}
     for user in user_dict:
         if user['real_name'] in usernames:
