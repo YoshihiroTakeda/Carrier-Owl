@@ -18,6 +18,8 @@ import urllib.parse
 from dataclasses import dataclass
 import arxiv
 import requests
+
+from get_mention_dict import get_mention_dict
 # setting
 warnings.filterwarnings('ignore')
 logger = logging.getLogger(__name__)
@@ -96,6 +98,16 @@ def get_channel_id(channel_names):
     return channel_dict
 
 
+def get_user_id(usernames: dict):
+    client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+    user_dict = client.users_list()["members"]
+    user_id_dict = {}
+    for user in user_dict:
+        if user['real_name'] in usernames:
+            user_id_dict[user['real_name']] = user['id']
+    return user_id_dict
+
+
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
     days = 31
@@ -131,6 +143,24 @@ def delete_history_message(slack_channel: str) -> None:
         assert e.response["error"]    # str like 'invalid_auth', 'channel_not_found'
     
 
+def get_mention(title: str, abstract: str, mention_dict: dict, user_id_dict: dict, channel_name: str) -> str:
+    mention = ''
+    mention_list = []
+    content = title + ' ' + abstract 
+    content = content.lower()
+    for name in mention_dict:
+        if name not in user_id_dict:
+            print('Someone assign wrong name in xlsx file! Please confirm.')
+        keywords = mention_dict[name][channel_name].dropna().values.tolist()
+        for keyword in keywords:
+            if keyword.lower() in content:
+                mention_list.append('<@'+user_id_dict[name]+'>')
+                break
+    if len(mention_list) > 0:
+        mention = '\n' + ' '.join(mention_list)
+    return mention
+
+
 def send2app(text: str, slack_channel: str, line_token: str) -> None:
     if slack_channel is not None:
         client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
@@ -156,7 +186,7 @@ def send2app(text: str, slack_channel: str, line_token: str) -> None:
         requests.post(line_notify_api, headers=headers, data=data)
 
 
-def notify(results: list, slack_channel: str, line_token: str) -> None:
+def notify(results: list, slack_channel: str, line_token: str, mention_dict: dict, user_id_dict: dict, channel_name: str) -> None:
     # 通知
     star = '*'*80
     
@@ -192,10 +222,12 @@ def notify(results: list, slack_channel: str, line_token: str) -> None:
         abstract = re.sub(r' *([_\*~]) *', r'\1', abstract)
         abstract = abstract.replace("`", "'")
 #         abstract = '```\t' + abstract + '```'
+        mention = get_mention(en_title, en_abstract, mention_dict, user_id_dict, channel_name)
 
         text = f'\n Title:\t{title}'\
                f'\n English Title:\t{en_title}'\
                f'\n URL: {url}'\
+               f'{mention}'\
                f'\n Abstract:'\
                f'\n {abstract}'\
                f'\n English abstract:'\
@@ -289,9 +321,13 @@ def main():
     channel_dict = get_channel_id(slack_channel_names)
     for channel_id in channel_dict.values():
         delete_history_message(channel_id)
-#     # for debug
-#     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
-#     return
+    # # for debug
+    # delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+    
+    # mention用データを読み込み
+    mention_url = os.getenv("MENTION_URL")
+    mention_dict = get_mention_dict(mention_url)
+    user_id_dict = get_user_id(mention_dict.keys())
 
     # post
     today = datetime.datetime.today()
@@ -304,7 +340,6 @@ def main():
         previous_deadline = previous_deadline - datetime.timedelta(days=2)
     deadline_str = deadline.strftime('%Y%m%d')
     previous_deadline_str = previous_deadline.strftime('%Y%m%d')
-    
     for channel_name, channel_config in channels.items():
         subject = channel_config['subject']
         keywords = channel_config['keywords']
@@ -319,10 +354,11 @@ def main():
         results = search_keyword(articles, keywords, score_threshold)
 
         slack_id = channel_dict[channel_name]
-#         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
+        # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
-        notify(results, slack_id, line_token)
-#         break  # debug
+
+        notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
+        # break  # debug
 
 
 if __name__ == "__main__":
