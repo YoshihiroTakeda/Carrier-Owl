@@ -35,6 +35,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_BOT_ID: ${{ secrets.SLACK_BOT_ID }}
           SLACK_CHANNEL_ID_DEV: ${{ secrets.SLACK_CHANNEL_ID_DEV }}
+          MENTION_URL: ${{secrets.MENTION_URL}}
 #           SLACK_ID_ASTROPH_GA: ${{ secrets.SLACK_ID_ASTROPH_GA }}
 #           SLACK_ID_ASTROPH_CO: ${{ secrets.SLACK_ID_ASTROPH_CO }}
 #           SLACK_ID_ASTROPH_HE: ${{ secrets.SLACK_ID_ASTROPH_HE }}
