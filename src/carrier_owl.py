@@ -149,6 +149,8 @@ def get_mention(title: str, abstract: str, mention_dict: dict, user_id_dict: dic
     content = title + ' ' + abstract 
     content = content.lower()
     for name in mention_dict:
+        if name not in user_id_dict:
+            print('Someone assign wrong name in xlsx file! Please confirm.')
         keywords = mention_dict[name][channel_name].dropna().values.tolist()
         for keyword in keywords:
             if keyword.lower() in content:
@@ -319,8 +321,8 @@ def main():
     channel_dict = get_channel_id(slack_channel_names)
     for channel_id in channel_dict.values():
         delete_history_message(channel_id)
-    # for debug
-    delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+    # # for debug
+    # delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
     
     # mention用データを読み込み
     mention_url = os.getenv("MENTION_URL")
@@ -329,8 +331,8 @@ def main():
 
     # post
     today = datetime.datetime.today()
-    deadline = today - datetime.timedelta(days=1) - datetime.timedelta(days=1)  # debug
-    previous_deadline = today - datetime.timedelta(days=2) - datetime.timedelta(days=1) # debug
+    deadline = today - datetime.timedelta(days=1)
+    previous_deadline = today - datetime.timedelta(days=2)
     if today.weekday()==0:  # announce data is Monday
         deadline = deadline - datetime.timedelta(days=2)
         previous_deadline = previous_deadline - datetime.timedelta(days=2)
@@ -352,11 +354,11 @@ def main():
         results = search_keyword(articles, keywords, score_threshold)
 
         slack_id = channel_dict[channel_name]
-        slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
+        # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
 
         notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
-        break  # debug
+        # break  # debug
 
 
 if __name__ == "__main__":
