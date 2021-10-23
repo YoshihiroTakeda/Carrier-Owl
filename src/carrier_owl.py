@@ -98,6 +98,16 @@ def get_channel_id(channel_names):
     return channel_dict
 
 
+def get_user_id(usernames: dict):
+    client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+    user_dict = client.user_list()["members"]
+    user_id_dict = {}
+    for user in user_dict:
+        if user['real_name'] in usernames:
+            user_id_dict[user['real_name']] = user['id']
+    return user_id_dict
+
+
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
     days = 31
@@ -133,7 +143,7 @@ def delete_history_message(slack_channel: str) -> None:
         assert e.response["error"]    # str like 'invalid_auth', 'channel_not_found'
     
 
-def get_mention(title: str, abstract: str, mention_dict: dict, channel_name: str) -> str:
+def get_mention(title: str, abstract: str, mention_dict: dict, user_id_dict: dict, channel_name: str) -> str:
     mention = ''
     mention_list = []
     content = title + ' ' + abstract 
@@ -142,11 +152,10 @@ def get_mention(title: str, abstract: str, mention_dict: dict, channel_name: str
         keywords = mention_dict[name][channel_name].dropna().values.tolist()
         for keyword in keywords:
             if keyword.lower() in content:
-                mention_list.append('@'+name)
+                mention_list.append('<@'+user_id_dict[name]+'>')
                 break
     if len(mention_list) > 0:
         mention = '\n' + ' '.join(mention_list)
-    print(mention)
     return mention
 
 
@@ -175,7 +184,7 @@ def send2app(text: str, slack_channel: str, line_token: str) -> None:
         requests.post(line_notify_api, headers=headers, data=data)
 
 
-def notify(results: list, slack_channel: str, line_token: str, mention_dict: dict, channel_name: str) -> None:
+def notify(results: list, slack_channel: str, line_token: str, mention_dict: dict, user_id_dict: dict, channel_name: str) -> None:
     # 通知
     star = '*'*80
     
@@ -211,7 +220,7 @@ def notify(results: list, slack_channel: str, line_token: str, mention_dict: dic
         abstract = re.sub(r' *([_\*~]) *', r'\1', abstract)
         abstract = abstract.replace("`", "'")
 #         abstract = '```\t' + abstract + '```'
-        mention = get_mention(title, abstract, mention_dict, channel_name)
+        mention = get_mention(en_title, en_abstract, mention_dict, user_id_dict, channel_name)
 
         text = f'\n Title:\t{title}'\
                f'\n English Title:\t{en_title}'\
@@ -316,6 +325,7 @@ def main():
     # mention用データを読み込み
     mention_url = os.getenv("MENTION_URL")
     mention_dict = get_mention_dict(mention_url)
+    user_id_dict = get_user_id(mention_dict.keys())
 
     # post
     today = datetime.datetime.today()
@@ -345,7 +355,7 @@ def main():
         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
 
-        notify(results, slack_id, line_token, mention_dict, channel_name)
+        notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
         break  # debug
 
 
