@@ -145,7 +145,8 @@ def get_mention(title: str, abstract: str, mention_dict: dict, channel_name: str
                 mention_list.append('@'+name)
                 break
     if len(mention_list) > 0:
-        mention = ' '.join(mention_list) + '\n'
+        mention = '\n' + ' '.join(mention_list)
+    print(mention)
     return mention
 
 
@@ -328,11 +329,6 @@ def main():
     deadline_str = deadline.strftime('%Y%m%d')
     previous_deadline_str = previous_deadline.strftime('%Y%m%d')
     for channel_name, channel_config in channels.items():
-        for name in mention_dict:
-            print(mention_dict[name][channel_name])
-    return
-    for channel_name, channel_config in channels.items():
-
         subject = channel_config['subject']
         keywords = channel_config['keywords']
         # datetime format YYYYMMDDHHMMSS
