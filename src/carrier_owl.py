@@ -346,7 +346,7 @@ def main():
         # datetime format YYYYMMDDHHMMSS
         arxiv_query = f'({subject}) AND ' \
                       f'submittedDate:' \
-                      f'[{previous_deadline_str}180000 TO {deadline_str}175959]'
+                      f'[{previous_deadline_str}190000 TO {deadline_str}185959]'
         articles = arxiv.query(query=arxiv_query,
                                max_results=1000,
                                sort_by='submittedDate',
