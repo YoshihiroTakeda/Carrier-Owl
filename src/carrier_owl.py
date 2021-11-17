@@ -200,7 +200,7 @@ def notify(results: list, slack_channel: str, line_token: str, mention_dict: dic
         previous_deadline = previous_deadline - datetime.timedelta(days=2)
     deadline_str = deadline.strftime('%Y/%m/%d')
     previous_deadline_str = previous_deadline.strftime('%Y/%m/%d')
-    day_range = f'{previous_deadline_str} 18:00:00 〜 {deadline_str} 18:00:00 UTC'
+    day_range = f'{previous_deadline_str} 19:00:00 〜 {deadline_str} 19:00:00 UTC'
     
     n_articles = len(results)
     text = f'{star}\n \t \t {day_range}\tnum of articles = {n_articles}\n{star}'
