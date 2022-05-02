@@ -290,11 +290,14 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
 
 def get_text_from_page_source(html: str) -> str:
     soup = BeautifulSoup(html, features='lxml')
-    print(soup)
     target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
-    text = target_elem.text
-    text = ' '.join(text.split())
-    return text
+    try:
+        text = target_elem.text
+        text = ' '.join(text.split())
+        return text
+    except e:
+        print(e)
+        return None
 
 
 def get_config() -> dict:
