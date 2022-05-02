@@ -295,7 +295,7 @@ def get_text_from_page_source(html: str) -> str:
         text = target_elem.text
         text = ' '.join(text.split())
         return text
-    except e:
+    except Exception as e:
         print(e)
         return None
 
