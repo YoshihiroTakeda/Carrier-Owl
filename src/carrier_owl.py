@@ -255,7 +255,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     
 
     # url作成
-    url = 'https://www.deepl.com/translator#' \
+    url = 'https://www.deepl.com/en/translator#' \
         + from_lang + '/' + to_lang + '/' + from_text
 
     # ヘッドレスモードでブラウザを起動
