@@ -277,6 +277,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
             break
     if to_text is None:
         to_text = 'Sorry, I timed out...>_<'
+    print(to_text)
 
     # ブラウザ停止
     driver.quit()
