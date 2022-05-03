@@ -27,6 +27,8 @@ jobs:
           sudo apt update
           sudo apt-get install google-chrome-beta
           google-chrome-beta --version
+          alias google-chrome=google-chrome-beta
+          google-chrome --version
 
       - name: Run image
         uses: abatilo/actions-poetry@v2.0.0
