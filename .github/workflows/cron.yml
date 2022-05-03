@@ -18,7 +18,12 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.8
-
+      
+      - name: Install Chrome
+        run: |
+          VERSION_STRING="100.0.4896"
+          wget "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_${VERSION_STRING}_amd64.deb"
+          sudo dpkg -i "google-chrome-stable_${VERSION_STRING}_amd64.deb"
       - name: Run image
         uses: abatilo/actions-poetry@v2.0.0
         with:
