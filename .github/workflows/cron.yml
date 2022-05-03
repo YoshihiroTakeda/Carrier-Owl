@@ -19,12 +19,13 @@ jobs:
         with:
           python-version: 3.8
       
-      - uses: browser-actions/setup-chrome@latest
-      - name: Install chrome
-          run: chrome --version
-          with:
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@latest
+        with:
             chrome-version: 972766
-        
+      - name: Check Chrome version
+        run: chrome --version
+
       - name: Run image
         uses: abatilo/actions-poetry@v2.0.0
         with:
