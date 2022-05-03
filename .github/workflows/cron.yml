@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
           sudo apt update
-          sudo apt-get install google-chrome-stable
+          sudo apt-get install google-chrome-beta
 
       - name: Run image
         uses: abatilo/actions-poetry@v2.0.0
