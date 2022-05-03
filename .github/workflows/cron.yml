@@ -21,8 +21,8 @@ jobs:
       
       - name: Install Chrome
         uses: browser-actions/setup-chrome@latest
-        with:
-            chrome-version: 972766
+#         with:
+#             chrome-version: 972766
       - name: Check Chrome version
         run: chrome --version
 
