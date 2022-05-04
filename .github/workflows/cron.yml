@@ -26,7 +26,7 @@ jobs:
 
       - name: install dependencies
         run: poetry install
-
+        
       - name: Run owl
         run:
           poetry run python src/carrier_owl.py

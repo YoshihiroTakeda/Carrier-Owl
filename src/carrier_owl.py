@@ -1,6 +1,8 @@
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 import os
 import logging
 import re
@@ -255,7 +257,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     
 
     # url作成
-    url = 'https://www.deepl.com/translator#' \
+    url = 'https://www.deepl.com/en/translator#' \
         + from_lang + '/' + to_lang + '/' + from_text
 
     # ヘッドレスモードでブラウザを起動
@@ -263,7 +265,9 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     options.add_argument('--headless')
 
     # ブラウザーを起動
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+#     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+    
     driver.get(url)
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
 
@@ -277,6 +281,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
             break
     if to_text is None:
         to_text = 'Sorry, I timed out...>_<'
+    print(to_text)
 
     # ブラウザ停止
     driver.quit()
@@ -321,8 +326,8 @@ def main():
     channel_dict = get_channel_id(slack_channel_names)
     for channel_id in channel_dict.values():
         delete_history_message(channel_id)
-    # # for debug
-    # delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+#     # for debug
+#     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
     
     # mention用データを読み込み
     mention_url = os.getenv("MENTION_URL")
@@ -354,11 +359,11 @@ def main():
         results = search_keyword(articles, keywords, score_threshold)
 
         slack_id = channel_dict[channel_name]
-        # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
+#         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
 
         notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
-        # break  # debug
+#         break  # debug
 
 
 if __name__ == "__main__":
