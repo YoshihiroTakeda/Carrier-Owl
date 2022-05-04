@@ -1,6 +1,8 @@
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.firefox.options import Options
 import os
 import logging
 import re
@@ -263,7 +265,9 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     options.add_argument('--headless')
 
     # ブラウザーを起動
-    driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+#     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+    
     driver.get(url)
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
 
@@ -292,13 +296,9 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
 def get_text_from_page_source(html: str) -> str:
     soup = BeautifulSoup(html, features='lxml')
     target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
-    try:
-        text = target_elem.text
-        text = ' '.join(text.split())
-        return text
-    except Exception as e:
-        print(e)
-        return None
+    text = target_elem.text
+    text = ' '.join(text.split())
+    return text
 
 
 def get_config() -> dict:
