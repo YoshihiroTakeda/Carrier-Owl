@@ -54,7 +54,15 @@ def search_keyword(
         articles: list, keywords: dict, score_threshold: float
         ) -> list:
     results = []
+    
+    # ヘッドレスモードでブラウザを起動
+    options = Options()
+    options.add_argument('--headless')
 
+    # ブラウザーを起動
+    #     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
+    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+    
     for article in articles:
         url = article['arxiv_url']
         title = article['title']
@@ -62,9 +70,9 @@ def search_keyword(
         score, hit_keywords = calc_score(abstract, keywords)
         if score >= score_threshold:
             title = title.replace('\n', ' ')
-            title_trans = get_translated_text('ja', 'en', title)
+            title_trans = get_translated_text('ja', 'en', title, driver)
             abstract = abstract.replace('\n', ' ')
-            abstract_trans = get_translated_text('ja', 'en', abstract)
+            abstract_trans = get_translated_text('ja', 'en', abstract, driver)
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
 #             abstract_trans = '\n'.join(abstract_trans)
             result = Result(
@@ -72,6 +80,10 @@ def search_keyword(
                     score=score, words=hit_keywords)
             results.append(result)
 #         break  # debug
+
+    # ブラウザ停止
+    driver.quit()
+    
     return results
 
 
@@ -239,7 +251,7 @@ def notify(results: list, slack_channel: str, line_token: str, mention_dict: dic
         send2app(text, slack_channel, line_token)
 
 
-def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
+def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) -> str:
     '''
     https://qiita.com/fujino-fpu/items/e94d4ff9e7a5784b2987
     '''
@@ -260,14 +272,6 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     url = 'https://www.deepl.com/en/translator#' \
         + from_lang + '/' + to_lang + '/' + from_text
 
-    # ヘッドレスモードでブラウザを起動
-    options = Options()
-    options.add_argument('--headless')
-
-    # ブラウザーを起動
-#     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
-    
     driver.get(url)
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
 
@@ -282,9 +286,6 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str) -> str:
     if to_text is None:
         to_text = 'Sorry, I timed out...>_<'
     print(to_text)
-
-    # ブラウザ停止
-    driver.quit()
     
     # unmask latex mathline
     to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
