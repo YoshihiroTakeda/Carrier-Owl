@@ -9,6 +9,8 @@ import re
 import time
 import yaml
 import datetime
+import holidays
+import pytz
 import slackweb
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -204,17 +206,8 @@ def notify(results: list, slack_channel: str, line_token: str, mention_dict: dic
     # 通知
     star = '*'*80
     
-    today = datetime.datetime.today()
-    deadline = today - datetime.timedelta(days=1)
-    previous_deadline = today - datetime.timedelta(days=2)
-    if today.weekday()==0:  # announce data is Monday
-        deadline = deadline - datetime.timedelta(days=2)
-        previous_deadline = previous_deadline - datetime.timedelta(days=2)
-    if today.weekday()==1:  # announce data is Tuesday
-        previous_deadline = previous_deadline - datetime.timedelta(days=2)
-    deadline_str = deadline.strftime('%Y/%m/%d')
-    previous_deadline_str = previous_deadline.strftime('%Y/%m/%d')
-    day_range = f'{previous_deadline_str} 19:00:00 〜 {deadline_str} 19:00:00 UTC'
+    deadline_str, previous_deadline_str = get_date_range(style='%Y/%m/%d %H:%M:%S')
+    day_range = f'{previous_deadline_str} 〜 {deadline_str} UTC'
     
     n_articles = len(results)
     text = f'{star}\n \t \t {day_range}\tnum of articles = {n_articles}\n{star}'
@@ -311,6 +304,47 @@ def get_config() -> dict:
     return config
 
 
+def get_previous_deadline(day):
+    deadline = day - datetime.timedelta(days=1)
+    previous_deadline = deadline - datetime.timedelta(days=1)
+    if day.weekday()==0:  # announce data is Monday
+        deadline = deadline - datetime.timedelta(days=2)
+        previous_deadline = previous_deadline - datetime.timedelta(days=2)
+    if day.weekday()==1:  # announce data is Tuesday
+        previous_deadline = previous_deadline - datetime.timedelta(days=2)
+    return deadline, previous_deadline
+
+
+def get_date_range(style='%Y%m%d%H%M%S'):
+    us_holidays = holidays.US()
+    day = datetime.datetime.today()
+    deadline, previous_deadline = get_previous_deadline(day)
+    # check holiday
+    if deadline in us_holidays:
+        print('It is a holiday today!!! (^_^)')
+        exit()
+    while True:
+        if previous_deadline not in us_holidays:
+            break
+        # cal previous day
+        if day.weekday()==0:
+            delta = datetime.timedelta(days=3)
+        else:
+            delta = datetime.timedelta(days=1)
+        day = day - delta
+        # extend previous_deadline
+        _, previous_deadline = get_previous_deadline(day)
+    
+    deadline = deadline.replace(hour=19, minute=0, second=0, microsecond=0)
+    previous_deadline = previous_deadline.replace(hour=19, minute=0, second=0, microsecond=0)
+    tz = pytz.timezone('US/Eastern')
+    deadline = deadline - tz.dst(deadline)
+    previous_deadline = previous_deadline - tz.dst(previous_deadline)
+    deadline_str = deadline.strftime(style)
+    previous_deadline_str = previous_deadline.strftime(style)
+    return deadline_str, previous_deadline_str
+
+
 def main():
     # debug用
     parser = argparse.ArgumentParser()
@@ -327,8 +361,8 @@ def main():
     channel_dict = get_channel_id(slack_channel_names)
     for channel_id in channel_dict.values():
         delete_history_message(channel_id)
-#     # for debug
-#     delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+    # # for debug
+    # delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
     
     # mention用データを読み込み
     mention_url = os.getenv("MENTION_URL")
@@ -336,23 +370,14 @@ def main():
     user_id_dict = get_user_id(mention_dict.keys())
 
     # post
-    today = datetime.datetime.today()
-    deadline = today - datetime.timedelta(days=1)
-    previous_deadline = today - datetime.timedelta(days=2)
-    if today.weekday()==0:  # announce data is Monday
-        deadline = deadline - datetime.timedelta(days=2)
-        previous_deadline = previous_deadline - datetime.timedelta(days=2)
-    if today.weekday()==1:  # announce data is Tuesday
-        previous_deadline = previous_deadline - datetime.timedelta(days=2)
-    deadline_str = deadline.strftime('%Y%m%d')
-    previous_deadline_str = previous_deadline.strftime('%Y%m%d')
+    deadline_str, previous_deadline_str = get_date_range()
     for channel_name, channel_config in channels.items():
         subject = channel_config['subject']
         keywords = channel_config['keywords']
         # datetime format YYYYMMDDHHMMSS
         arxiv_query = f'({subject}) AND ' \
                       f'submittedDate:' \
-                      f'[{previous_deadline_str}190000 TO {deadline_str}185959]'
+                      f'[{previous_deadline_str} TO {deadline_str}]'
         articles = arxiv.query(query=arxiv_query,
                                max_results=1000,
                                sort_by='submittedDate',
@@ -360,11 +385,11 @@ def main():
         results = search_keyword(articles, keywords, score_threshold)
 
         slack_id = channel_dict[channel_name]
-#         slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
+        # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
 
         notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
-#         break  # debug
+        # break  # debug
 
 
 if __name__ == "__main__":
