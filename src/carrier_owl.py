@@ -319,21 +319,21 @@ def get_date_range(style='%Y%m%d%H%M%S'):
     us_holidays = holidays.US()
     day = datetime.datetime.today()
     deadline, previous_deadline = get_previous_deadline(day)
-    # check holiday
-    if deadline in us_holidays:
-        print('It is a holiday today!!! (^_^)')
-        exit()
-    while True:
-        if previous_deadline not in us_holidays:
-            break
-        # cal previous day
-        if day.weekday()==0:
-            delta = datetime.timedelta(days=3)
-        else:
-            delta = datetime.timedelta(days=1)
-        day = day - delta
-        # extend previous_deadline
-        _, previous_deadline = get_previous_deadline(day)
+    # # check holiday
+    # if deadline in us_holidays:
+    #     print('It is a holiday today!!! (^_^)')
+    #     exit()
+    # while True:
+    #     if previous_deadline not in us_holidays:
+    #         break
+    #     # cal previous day
+    #     if day.weekday()==0:
+    #         delta = datetime.timedelta(days=3)
+    #     else:
+    #         delta = datetime.timedelta(days=1)
+    #     day = day - delta
+    #     # extend previous_deadline
+    #     _, previous_deadline = get_previous_deadline(day)
     
     deadline = deadline.replace(hour=19, minute=0, second=0, microsecond=0)
     previous_deadline = previous_deadline.replace(hour=19, minute=0, second=0, microsecond=0)
@@ -382,12 +382,12 @@ def main():
                                max_results=1000,
                                sort_by='submittedDate',
                                iterative=False)
+        print(arxiv_query)
         results = search_keyword(articles, keywords, score_threshold)
 
         slack_id = channel_dict[channel_name]
         # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
-
         notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
         # break  # debug
 
