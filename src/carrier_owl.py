@@ -22,6 +22,7 @@ import urllib.parse
 from dataclasses import dataclass
 import arxiv
 import requests
+import yaml
 
 from get_mention_dict import get_mention_dict
 # setting
@@ -315,25 +316,36 @@ def get_previous_deadline(day):
     return deadline, previous_deadline
 
 
+def read_holidayfile():
+    path = 'arxiv_holiday.yaml'
+    with open(path) as file:
+        obj = yaml.safe_load(file)
+    holiday = [datetime.datetime.strptime(date, '%Y/%m/%d').date()  for date in obj['holiday']]
+    announce_holiday = [date + datetime.timedelta(days=1) for date in holiday]
+    return announce_holiday
+
+
 def get_date_range(style='%Y%m%d%H%M%S'):
-    us_holidays = holidays.US()
+    # us_holidays = holidays.US()
+    us_holidays = read_holidayfile()
     day = datetime.datetime.today()
     deadline, previous_deadline = get_previous_deadline(day)
-    # # check holiday
-    # if deadline in us_holidays:
-    #     print('It is a holiday today!!! (^_^)')
-    #     exit()
-    # while True:
-    #     if previous_deadline not in us_holidays:
-    #         break
-    #     # cal previous day
-    #     if day.weekday()==0:
-    #         delta = datetime.timedelta(days=3)
-    #     else:
-    #         delta = datetime.timedelta(days=1)
-    #     day = day - delta
-    #     # extend previous_deadline
-    #     _, previous_deadline = get_previous_deadline(day)
+    # check holiday
+    print(day, us_holidays)
+    if day.date() in us_holidays:
+        print('It is a holiday today!!! (^_^)')
+        exit()
+    while True:
+        # cal previous day
+        if day.weekday()==0:
+            delta = datetime.timedelta(days=3)
+        else:
+            delta = datetime.timedelta(days=1)
+        day = day - delta
+        if day.date() not in us_holidays:
+            break
+        # extend previous_deadline
+        _, previous_deadline = get_previous_deadline(day)
     
     deadline = deadline.replace(hour=19, minute=0, second=0, microsecond=0)
     previous_deadline = previous_deadline.replace(hour=19, minute=0, second=0, microsecond=0)
