@@ -272,6 +272,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     for i in range(50):
         # 指定時間待つ
         time.sleep(sleep_time)
+        print(driver.find_element_by_class_name("lmt__translations_as_text__text_btn"))
         html = driver.page_source
         to_text = get_text_from_page_source(html)
 
@@ -290,7 +291,6 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
 
 def get_text_from_page_source(html: str) -> str:
     soup = BeautifulSoup(html, features='lxml')
-    print(soup)
     target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
     text = target_elem.text
     text = ' '.join(text.split())
