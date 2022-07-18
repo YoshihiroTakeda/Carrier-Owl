@@ -266,7 +266,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     url = 'https://www.deepl.com/en/translator#' \
         + from_lang + '/' + to_lang + '/' + from_text
 
-    driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
+    driver.implicitly_wait(1)  # 見つからないときは、10秒まで待つ
     driver.get(url)
 
     try:
@@ -284,7 +284,8 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     # unmask latex mathline
     to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
     to_text = unmask(labels, to_text)
-
+    
+    time.sleep(1)
     return to_text
 
 
