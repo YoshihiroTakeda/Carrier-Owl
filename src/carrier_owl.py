@@ -268,6 +268,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
 
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
     driver.get(url)
+    time.sleep(sleep_time)
 
     try:
         target_elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
@@ -286,8 +287,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     # unmask latex mathline
     to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
     to_text = unmask(labels, to_text)
-    
-    time.sleep(1)
+
     return to_text
 
 
