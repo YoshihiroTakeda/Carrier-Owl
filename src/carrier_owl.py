@@ -374,8 +374,8 @@ def main():
     channel_dict = get_channel_id(slack_channel_names)
     for channel_id in channel_dict.values():
         delete_history_message(channel_id)
-    # # for debug
-    # delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
+    # for debug
+    delete_history_message(os.getenv("SLACK_CHANNEL_ID_DEV"))
     
     # mention用データを読み込み
     mention_url = os.getenv("MENTION_URL")
@@ -399,10 +399,10 @@ def main():
         results = search_keyword(articles, keywords, score_threshold)
 
         slack_id = channel_dict[channel_name]
-        # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
+        slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
         notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
-        # break  # debug
+        break  # debug
 
 
 if __name__ == "__main__":
