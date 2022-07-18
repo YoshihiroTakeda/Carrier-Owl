@@ -266,8 +266,8 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     url = 'https://www.deepl.com/en/translator#' \
         + from_lang + '/' + to_lang + '/' + from_text
 
-    driver.get(url)
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
+    driver.get(url)
 
     try:
         target_elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
