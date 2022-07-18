@@ -271,6 +271,7 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
 
     try:
         target_elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
+        print(target_elem)
         to_text = target_elem.text
         print(to_text)
         to_text = ' '.join(to_text.split())
