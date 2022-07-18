@@ -268,18 +268,16 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
 
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
     driver.get(url)
-    time.sleep(sleep_time)
-
-    try:
-        target_elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
-        print(target_elem)
-        to_text = target_elem.text
-        print(to_text)
-        to_text = ' '.join(to_text.split())
-        print(to_text)
-    except:
-        to_text = None
     
+    for i in range(50):
+        # 指定時間待つ
+        time.sleep(sleep_time)
+        print(driver.find_element_by_class_name("lmt__translations_as_text__text_btn"))
+        html = driver.page_source
+        to_text = get_text_from_page_source(html)
+
+        if to_text:
+            break
     if to_text is None:
         to_text = 'Sorry, I timed out...>_<'
     print(to_text)
@@ -289,6 +287,14 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     to_text = unmask(labels, to_text)
 
     return to_text
+
+
+def get_text_from_page_source(html: str) -> str:
+    soup = BeautifulSoup(html, features='lxml')
+    target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
+    text = target_elem.text
+    text = ' '.join(text.split())
+    return text
 
 
 def get_config() -> dict:
