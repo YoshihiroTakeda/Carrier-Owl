@@ -266,14 +266,13 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     url = 'https://www.deepl.com/en/translator#' \
         + from_lang + '/' + to_lang + '/' + from_text
 
-    driver.implicitly_wait(1)  # 見つからないときは、10秒まで待つ
     driver.get(url)
+    driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
 
     try:
-        tmp = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
-        print(tmp.text)
-        html = driver.page_source
-        to_text = get_text_from_page_source(html)
+        target_elem = driver.find_element_by_class_name("lmt__translations_as_text__text_btn")
+        to_text = target_elem.text
+        to_text = ' '.join(to_text.split())
     except:
         to_text = None
     
@@ -287,14 +286,6 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     
     time.sleep(1)
     return to_text
-
-
-def get_text_from_page_source(html: str) -> str:
-    soup = BeautifulSoup(html, features='lxml')
-    target_elem = soup.find(class_="lmt__translations_as_text__text_btn")
-    text = target_elem.text
-    text = ' '.join(text.split())
-    return text
 
 
 def get_config() -> dict:
