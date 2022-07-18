@@ -266,15 +266,18 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
     url = 'https://www.deepl.com/en/translator#' \
         + from_lang + '/' + to_lang + '/' + from_text
 
-    driver.get(url)
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
-
-    for i in range(50):
-        # 指定時間待つ
-        time.sleep(sleep_time)
-        print(driver.find_element_by_class_name("lmt__translations_as_text__text_btn"))
+    driver.get(url)
+    if driver.find_element_by_class_name("lmt__translations_as_text__text_btn") is not None:
         html = driver.page_source
-        to_text = get_text_from_page_source(html)
+        to_text = get_text_from_page_source(html)        
+
+#     for i in range(50):
+#         # 指定時間待つ
+#         time.sleep(sleep_time)
+#         # 翻訳要素が存在していることを確認
+        
+
 
         if to_text:
             break
