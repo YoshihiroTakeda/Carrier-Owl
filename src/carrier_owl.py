@@ -128,7 +128,7 @@ def get_user_id(usernames: dict):
 def delete_history_message(slack_channel: str) -> None:
     client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
     days = 31
-    storage_term = 60 * 60 * 24 * days  # 1ヶ月
+    storage_term = 3 * 60 * 60 * 24 * days  # 3ヶ月
     now = datetime.datetime.now()
     current_ts = int(now.strftime('%s'))
     # Store conversation history
