@@ -12,14 +12,14 @@ channels:
 #                 subject: 'cat:astro-ph.EP'
 #                 keywords:
 #                         huga: 1
-        astro-ph_he: 
-                subject: 'cat:astro-ph.HE'
-                keywords:
-                        huga: 1
-        astro-ph_im: 
-                subject: 'cat:astro-ph.IM'
-                keywords:
-                        hoge: 1
+#         astro-ph_he: 
+#                 subject: 'cat:astro-ph.HE'
+#                 keywords:
+#                         huga: 1
+#         astro-ph_im: 
+#                 subject: 'cat:astro-ph.IM'
+#                 keywords:
+#                         hoge: 1
         astro-ph_sr: 
                 subject: 'cat:astro-ph.SR'
                 keywords:
