@@ -329,7 +329,7 @@ def read_holidayfile():
 def get_date_range(style='%Y%m%d%H%M%S', delay=0):
     # us_holidays = holidays.US()
     us_holidays = read_holidayfile()
-    day = datetime.datetime.today() + datetime.timedelta(days=delay)
+    day = datetime.datetime.today() - datetime.timedelta(days=delay)
     deadline, previous_deadline = get_previous_deadline(day)
     # check holiday
     print(day, us_holidays)
