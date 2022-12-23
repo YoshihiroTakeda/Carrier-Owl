@@ -203,11 +203,11 @@ def send2app(text: str, slack_channel: str, line_token: str) -> None:
         requests.post(line_notify_api, headers=headers, data=data)
 
 
-def notify(results: list, slack_channel: str, line_token: str, mention_dict: dict, user_id_dict: dict, channel_name: str) -> None:
+def notify(results: list, slack_channel: str, line_token: str, mention_dict: dict, user_id_dict: dict, channel_name: str, delay: int) -> None:
     # 通知
     star = '*'*80
     
-    deadline_str, previous_deadline_str = get_date_range(style='%Y/%m/%d %H:%M:%S')
+    deadline_str, previous_deadline_str = get_date_range(style='%Y/%m/%d %H:%M:%S', delay=delay)
     day_range = f'{previous_deadline_str} 〜 {deadline_str} UTC'
     
     n_articles = len(results)
@@ -326,10 +326,10 @@ def read_holidayfile():
     return announce_holiday
 
 
-def get_date_range(style='%Y%m%d%H%M%S'):
+def get_date_range(style='%Y%m%d%H%M%S', delay=0):
     # us_holidays = holidays.US()
     us_holidays = read_holidayfile()
-    day = datetime.datetime.today()
+    day = datetime.datetime.today() + datetime.timedelta(days=delay)
     deadline, previous_deadline = get_previous_deadline(day)
     # check holiday
     print(day, us_holidays)
@@ -383,7 +383,7 @@ def main():
     user_id_dict = get_user_id(mention_dict.keys())
 
     # post
-    deadline_str, previous_deadline_str = get_date_range()
+    deadline_str, previous_deadline_str = get_date_range(delay=config['delay'])
     for channel_name, channel_config in channels.items():
         subject = channel_config['subject']
         keywords = channel_config['keywords']
@@ -401,7 +401,7 @@ def main():
         slack_id = channel_dict[channel_name]
         # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
         line_token = os.getenv("LINE_TOKEN") or args.line_token
-        notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name)
+        notify(results, slack_id, line_token, mention_dict, user_id_dict, channel_name, delay=config['delay'])
         # break  # debug
 
 
