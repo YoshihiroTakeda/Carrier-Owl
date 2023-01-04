@@ -30,4 +30,4 @@ channels:
 score_threshold: 0
 
 # 通知の日数変更
-delay: 0
+delay: 1
