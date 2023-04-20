@@ -6,7 +6,7 @@ authors = ["hppRC <hpp.ricecake@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-wheel = "^0.38.4"
+wheel = "^0.40.0"
 slackweb = "^1.0.5"
 lxml = "^4.9.1"
 pyyaml = "^5.3.1"
