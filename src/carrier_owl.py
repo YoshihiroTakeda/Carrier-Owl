@@ -220,6 +220,11 @@ def notify(results: list, slack_channel: str, line_token: str, mention_dict: dic
         en_title = result.en_title
         abstract = result.abstract
         en_abstract = result.en_abstract
+        authors = result.authors
+        if len(authors)>0:
+            first_author = authors[0]
+        else:
+            first_author = 'None'
         word = result.words
         score = result.score
         
@@ -234,6 +239,7 @@ def notify(results: list, slack_channel: str, line_token: str, mention_dict: dic
 
         text = f'\n Title:\t{title}'\
                f'\n English Title:\t{en_title}'\
+               f'\n First Author:\t{first_author}'\
                f'\n URL: {url}'\
                f'{mention}'\
                f'\n Abstract:'\
