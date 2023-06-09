@@ -35,6 +35,7 @@ class Result:
     url: str
     title: str
     en_title: str
+    authors: list
     abstract: str
     en_abstract: str
     words: list
@@ -69,6 +70,7 @@ def search_keyword(
     for article in articles:
         url = article['arxiv_url']
         title = article['title']
+        authors = article['authors']
         abstract = article['summary']
         score, hit_keywords = calc_score(abstract, keywords)
         if score >= score_threshold:
@@ -79,7 +81,7 @@ def search_keyword(
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
 #             abstract_trans = '\n'.join(abstract_trans)
             result = Result(
-                    url=url, title=title_trans, en_title=title, abstract=abstract_trans, en_abstract=abstract,
+                    url=url, title=title_trans, en_title=title, authors=authors,abstract=abstract_trans, en_abstract=abstract,
                     score=score, words=hit_keywords)
             results.append(result)
 #         break  # debug
