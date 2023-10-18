@@ -75,9 +75,9 @@ def search_keyword(
         score, hit_keywords = calc_score(abstract, keywords)
         if score >= score_threshold:
             title = title.replace('\n', ' ')
-            title_trans = get_translated_text('ja', 'en', title, driver)
+            title_trans = get_translated_text( 'en', 'ja', title, driver)
             abstract = abstract.replace('\n', ' ')
-            abstract_trans = get_translated_text('ja', 'en', abstract, driver)
+            abstract_trans = get_translated_text('en', 'ja', abstract, driver)
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
 #             abstract_trans = '\n'.join(abstract_trans)
             result = Result(
@@ -296,6 +296,34 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
 
     return to_text
 
+
+def get_translated_text_via_api(from_lang: str, to_lang: str, from_text: str, driver) -> str:
+    text = "Riemann Zeta function is a very important function in number theory."
+    # source_lang = 'EN'
+    # target_lang = 'JA'
+    
+    # mask latex mathline
+    labels = {}
+    print(repr(from_text))
+    from_text = mask(labels, from_text)
+
+    # パラメータの指定
+    params = {
+                'auth_key' : os.getenv("DEEPL_API_KEY"),
+                'text' : from_text,
+                'source_lang' : from_lang, # 翻訳対象の言語
+                "target_lang": to_lang  # 翻訳後の言語
+            }
+
+    # リクエストを投げる
+    request = requests.post("https://api-free.deepl.com/v2/translate", data=params) # URIは有償版, 無償版で異なるため要注意
+    result = request.json()
+    to_text = result['translations'][0]['text']
+    # unmask latex mathline
+    to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
+    to_text = unmask(labels, to_text)
+
+    return to_text
 
 def get_text_from_page_source(html: str) -> str:
     soup = BeautifulSoup(html, features='lxml')
