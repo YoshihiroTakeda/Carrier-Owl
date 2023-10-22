@@ -278,16 +278,19 @@ def get_translated_text(from_lang: str, to_lang: str, from_text: str, driver) ->
 
     driver.implicitly_wait(10)  # 見つからないときは、10秒まで待つ
     driver.get(url)
-    
+    to_text = None
     for i in range(50):
         # 指定時間待つ
         time.sleep(sleep_time)
-        print(driver.find_element_by_class_name("lmt__translations_as_text__text_btn"))
-        html = driver.page_source
-        to_text = get_text_from_page_source(html)
+        try:
+            print(driver.find_element_by_class_name("lmt__translations_as_text__text_btn"))
+            html = driver.page_source
+            to_text = get_text_from_page_source(html)
 
-        if to_text:
-            break
+            if to_text:
+                break
+        except Exception as e:
+            print(e)
     if to_text is None:
         to_text = 'Sorry, I timed out...>_<'
     print(to_text)
