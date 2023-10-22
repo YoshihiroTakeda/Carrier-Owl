@@ -316,9 +316,14 @@ def get_translated_text_via_api(from_lang: str, to_lang: str, from_text: str) ->
                 'source_lang' : from_lang, # 翻訳対象の言語
                 "target_lang": to_lang  # 翻訳後の言語
             }
+    headers =  {
+        "Authorization" : "DeepL-Auth-Key "+os.getenv("DEEPL_API_KEY"),
+        "Content-Type" : "application/json"
+    }
 
     # リクエストを投げる
-    request = requests.post("https://api-free.deepl.com/v2/translate", data=params) # URIは有償版, 無償版で異なるため要注意
+    request = requests.post("https://api-free.deepl.com/v2/translate", data=params,headers=headers) # URIは有償版, 無償版で異なるため要注意
+    print(request)
     result = request.json()
     to_text = result['translations'][0]['text']
     # unmask latex mathline
