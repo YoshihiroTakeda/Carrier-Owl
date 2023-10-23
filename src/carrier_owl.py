@@ -75,11 +75,11 @@ def search_keyword(
         score, hit_keywords = calc_score(abstract, keywords)
         if score >= score_threshold:
             title = title.replace('\n', ' ')
-            title_trans = get_translated_text( 'en', 'ja', title, driver)
-            # title_trans = get_translated_text_via_api('EN', 'JA', title)
+            # title_trans = get_translated_text( 'en', 'ja', title, driver)
+            title_trans = get_translated_text_via_api('EN', 'JA', title)
             abstract = abstract.replace('\n', ' ')
-            abstract_trans = get_translated_text('en', 'ja', abstract, driver)
-            # abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
+            # abstract_trans = get_translated_text('en', 'ja', abstract, driver)
+            abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
 #             abstract_trans = '\n'.join(abstract_trans)
             result = Result(
@@ -325,7 +325,7 @@ def get_translated_text_via_api(from_lang: str, to_lang: str, from_text: str) ->
     }
 
     # リクエストを投げる
-    request = requests.post("https://api-free.deepl.com/v2/translate", data=params,headers=headers) # URIは有償版, 無償版で異なるため要注意
+    request = requests.post("https://api-free.deepl.com/v2/translate", data=params,)#headers=headers) # URIは有償版, 無償版で異なるため要注意
     # print(request)
     result = request.json()
     print(result)
