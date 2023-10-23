@@ -314,13 +314,13 @@ def get_translated_text_via_api(from_lang: str, to_lang: str, from_text: str) ->
 
     # パラメータの指定
     params = {
-                'auth_key' : os.getenv("DEEPL_API_KEY"),
+                'auth_key' : os.getenv("DEEPL_API_TOKEN"),
                 'text' : from_text,
                 'source_lang' : from_lang, # 翻訳対象の言語
                 "target_lang": to_lang  # 翻訳後の言語
             }
     headers =  {
-        "Authorization" : "DeepL-Auth-Key "+os.getenv("DEEPL_API_KEY"),
+        "Authorization" : "DeepL-Auth-Key "+os.getenv("DEEPL_API_TOKEN"),
         "Content-Type" : "application/json"
     }
 
