@@ -326,8 +326,9 @@ def get_translated_text_via_api(from_lang: str, to_lang: str, from_text: str) ->
 
     # リクエストを投げる
     request = requests.post("https://api-free.deepl.com/v2/translate", data=params,headers=headers) # URIは有償版, 無償版で異なるため要注意
-    print(request)
+    # print(request)
     result = request.json()
+    print(result)
     to_text = result['translations'][0]['text']
     # unmask latex mathline
     to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
