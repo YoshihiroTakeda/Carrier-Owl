@@ -75,11 +75,11 @@ def search_keyword(
         score, hit_keywords = calc_score(abstract, keywords)
         if score >= score_threshold:
             title = title.replace('\n', ' ')
-            # title_trans = get_translated_text( 'en', 'ja', title, driver)
-            title_trans = get_translated_text_via_api('EN', 'JA', title)
+            title_trans = get_translated_text( 'en', 'ja', title, driver)
+            # title_trans = get_translated_text_via_api('EN', 'JA', title)
             abstract = abstract.replace('\n', ' ')
-            # abstract_trans = get_translated_text('en', 'ja', abstract, driver)
-            abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
+            abstract_trans = get_translated_text('en', 'ja', abstract, driver)
+            # abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
 #             abstract_trans = '\n'.join(abstract_trans)
             result = Result(
