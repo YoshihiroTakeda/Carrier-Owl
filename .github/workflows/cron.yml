@@ -32,6 +32,7 @@ jobs:
           poetry run python src/carrier_owl.py
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEEPL_API_TOKEN: ${{ secrets.DEEPL_API_TOKEN }}
           SLACK_ID: ${{ secrets.SLACK_ID }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           SLACK_BOT_ID: ${{ secrets.SLACK_BOT_ID }}
