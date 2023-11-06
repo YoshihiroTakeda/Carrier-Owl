@@ -373,9 +373,11 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
         time.sleep(sleep_time)
 
         res.encoding = 'utf-8'
-        # print("[res]")
+        print("[res]")
         # print(res)
-        # print(res.text)
+        print(res.text)
+        print(res.json())
+        print(res.json()['resultset'])
 
         # xelm = fromstring(res.text)
         # print(xelm.findtext(".//message"))
