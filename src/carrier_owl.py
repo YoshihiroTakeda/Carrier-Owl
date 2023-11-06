@@ -495,7 +495,6 @@ def main():
                                iterative=False)
         print(arxiv_query)
         results = search_keyword(articles, keywords, score_threshold)
-        exit()
 
         slack_id = channel_dict[channel_name]
         # slack_id = os.getenv("SLACK_CHANNEL_ID_DEV") or args.slack_id  # debug
