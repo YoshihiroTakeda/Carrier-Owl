@@ -88,7 +88,7 @@ def search_keyword(
             # abstract_trans = get_translated_text('en', 'ja', abstract, driver)
             try:
                 # abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
-                title_trans = get_translated_text_via_textra_api('EN', 'JA', title)
+                abstract_trans = get_translated_text_via_textra_api('EN', 'JA', title)
             except:
                 abstract_trans = ''
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
@@ -353,6 +353,7 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
     KEY = os.getenv("TEXTRA_API_KEY")
     SECRET = os.getenv("TEXTRA_API_SECRET")
     URL = "https://mt-auto-minhon-mlt.ucri.jgn-x.jp/api/mt/generalNT_en_ja/"
+    sleep_time = 1
     
     # mask latex mathline
     labels = {}
@@ -369,14 +370,16 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
 
     try:
         res = requests.post(URL , data=params , auth=consumer)
-        res.encoding = 'utf-8'
-        print("[res]")
-        print(res)
-        print(res.text)
+        time.sleep(sleep_time)
 
-        xelm = fromstring(res.text)
-        print(xelm.findtext(".//message"))
-        to_text = xelm.findtext(".//message")
+        res.encoding = 'utf-8'
+        # print("[res]")
+        # print(res)
+        # print(res.text)
+
+        # xelm = fromstring(res.text)
+        # print(xelm.findtext(".//message"))
+        to_text = res['resultset']['result']['text']
 
     except Exception as e:
         print('=== Error ===')
