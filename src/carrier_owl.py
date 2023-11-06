@@ -24,6 +24,9 @@ import arxiv
 import requests
 import yaml
 
+from requests_oauthlib import OAuth1
+from xml.etree.ElementTree import *
+
 from get_mention_dict import get_mention_dict
 # setting
 warnings.filterwarnings('ignore')
@@ -60,12 +63,12 @@ def search_keyword(
     results = []
     
     # ヘッドレスモードでブラウザを起動
-    options = Options()
-    options.add_argument('--headless')
+    # options = Options()
+    # options.add_argument('--headless')
 
     # ブラウザーを起動
     #     driver = webdriver.Chrome(ChromeDriverManager().install(), options=options)
-    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
+    # driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), options=options)
     
     for article in articles:
         url = article['arxiv_url']
@@ -77,13 +80,15 @@ def search_keyword(
             title = title.replace('\n', ' ')
             # title_trans = get_translated_text( 'en', 'ja', title, driver)
             try:
-                title_trans = get_translated_text_via_api('EN', 'JA', title)
+                # title_trans = get_translated_text_via_api('EN', 'JA', title)
+                title_trans = get_translated_text_via_textra_api('EN', 'JA', title)
             except:
                 title_trans = ''
             abstract = abstract.replace('\n', ' ')
             # abstract_trans = get_translated_text('en', 'ja', abstract, driver)
             try:
-                abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
+                # abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
+                abstract_trans = get_translated_text_via_textra_api('EN', 'JA', abstract)
             except:
                 abstract_trans = ''
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
@@ -95,7 +100,7 @@ def search_keyword(
 #         break  # debug
 
     # ブラウザ停止
-    driver.quit()
+    # driver.quit()
     
     return results
 
@@ -340,6 +345,46 @@ def get_translated_text_via_api(from_lang: str, to_lang: str, from_text: str) ->
     to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
     to_text = unmask(labels, to_text)
 
+    return to_text
+
+
+def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: str) -> str:
+    NAME = os.getenv("TEXTRA_API_NAME")
+    KEY = os.getenv("TEXTRA_API_KEY")
+    SECRET = os.getenv("TEXTRA_API_SECRET")
+    URL = "https://mt-auto-minhon-mlt.ucri.jgn-x.jp/api/mt/generalNT_en_ja/"
+    sleep_time = 1
+    
+    # mask latex mathline
+    labels = {}
+    print(repr(from_text))
+    from_text = mask(labels, from_text)
+
+    consumer = OAuth1(KEY , SECRET)
+
+    params = {
+        'key': KEY,
+        'name': NAME,
+        'text': from_text,
+    }    # その他のパラメータについては、各APIのリクエストパラメータに従って設定してください。
+    try:
+        res = requests.post(URL , data=params , auth=consumer,timeout=15.0)
+        time.sleep(sleep_time)
+
+        res.encoding = 'utf-8'
+        # print("[res]")
+        print(res)
+        res.text
+
+        xelm = fromstring(res.text)
+        # print(xelm.findtext(".//message"))
+        to_text = xelm.find("result").find("text").text
+        to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
+        to_text = unmask(labels, to_text)
+        print(to_text)
+    except Exception as e:
+        print(e)
+        to_text = ''
     return to_text
 
 def get_text_from_page_source(html: str) -> str:
