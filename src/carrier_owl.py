@@ -369,7 +369,7 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
     }    # その他のパラメータについては、各APIのリクエストパラメータに従って設定してください。
 
     try:
-        res = requests.post(URL , data=params , auth=consumer)
+        res = requests.post(URL , data=params , auth=consumer,timeout=5.0)
         time.sleep(sleep_time)
 
         res.encoding = 'utf-8'
