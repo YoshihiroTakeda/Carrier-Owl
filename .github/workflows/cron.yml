@@ -45,5 +45,9 @@ jobs:
 #           SLACK_ID_ASTROPH_IM: ${{ secrets.SLACK_ID_ASTROPH_IM }}
 #           SLACK_ID_ASTROPH_SR: ${{ secrets.SLACK_ID_ASTROPH_SR }}
           LINE_TOKEN: ${{ secrets.LINE_TOKEN }}
+          TEXTRA_API_NAME: ${{ secrets.TEXTRA_API_NAME }}
+          TEXTRA_API_KEY: ${{ secrets.TEXTRA_API_KEY }}
+          TEXTRA_API_SECRET: ${{ secrets.TEXTRA_API_SECRET }}
+
 
 
