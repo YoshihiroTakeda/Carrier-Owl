@@ -376,12 +376,10 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
         print("[res]")
         # print(res)
         print(res.text)
-        print(res.json())
-        print(res.json()['resultset'])
 
-        # xelm = fromstring(res.text)
+        xelm = fromstring(res.text)
         # print(xelm.findtext(".//message"))
-        to_text = res.json()['resultset']['result']['text']
+        to_text = xelm.find("result").find("text").text
         print(to_text)
 
     except Exception as e:
