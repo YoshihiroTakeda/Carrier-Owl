@@ -368,25 +368,20 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
         'text': from_text,
     }    # その他のパラメータについては、各APIのリクエストパラメータに従って設定してください。
 
-    try:
-        res = requests.post(URL , data=params , auth=consumer,timeout=5.0)
-        time.sleep(sleep_time)
+    res = requests.post(URL , data=params , auth=consumer,timeout=5.0)
+    time.sleep(sleep_time)
 
-        res.encoding = 'utf-8'
-        print("[res]")
-        # print(res)
-        print(res.text)
+    res.encoding = 'utf-8'
+    # print("[res]")
+    # print(res)
+    # print(res.text)
 
-        xelm = fromstring(res.text)
-        # print(xelm.findtext(".//message"))
-        to_text = xelm.find("result").find("text").text
-        print(to_text)
-
-    except Exception as e:
-        print('=== Error ===')
-        print('type:' + str(type(e)))
-        print('args:' + str(e.args))
-        print('e:' + str(e))
+    xelm = fromstring(res.text)
+    # print(xelm.findtext(".//message"))
+    to_text = xelm.find("result").find("text").text
+    print(to_text)
+    to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
+    to_text = unmask(labels, to_text)
         
     return to_text
 
