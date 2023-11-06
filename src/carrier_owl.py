@@ -373,7 +373,7 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
 
     res.encoding = 'utf-8'
     # print("[res]")
-    # print(res)
+    print(res)
     # print(res.text)
 
     xelm = fromstring(res.text)
