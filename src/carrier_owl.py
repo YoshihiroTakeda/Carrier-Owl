@@ -374,14 +374,14 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
     res.encoding = 'utf-8'
     # print("[res]")
     print(res)
-    # print(res.text)
+    print(res.text)
 
     xelm = fromstring(res.text)
     # print(xelm.findtext(".//message"))
     to_text = xelm.find("result").find("text").text
-    print(to_text)
     to_text = to_text.replace('（', '(').replace('）', ')')  # to prevent from change label by deepL
     to_text = unmask(labels, to_text)
+    print(to_text)
         
     return to_text
 
