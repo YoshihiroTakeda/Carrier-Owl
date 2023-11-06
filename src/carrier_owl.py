@@ -88,7 +88,7 @@ def search_keyword(
             # abstract_trans = get_translated_text('en', 'ja', abstract, driver)
             try:
                 # abstract_trans = get_translated_text_via_api('EN', 'JA', abstract)
-                abstract_trans = get_translated_text_via_textra_api('EN', 'JA', title)
+                abstract_trans = get_translated_text_via_textra_api('EN', 'JA', abstract)
             except:
                 abstract_trans = ''
 #             abstract_trans = textwrap.wrap(abstract_trans, 40)  # 40行で改行
@@ -374,7 +374,7 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
     res.encoding = 'utf-8'
     # print("[res]")
     print(res)
-    print(res.text)
+    res.text
 
     xelm = fromstring(res.text)
     # print(xelm.findtext(".//message"))
