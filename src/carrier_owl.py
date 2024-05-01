@@ -24,7 +24,8 @@ import arxiv
 import requests
 import yaml
 
-from requests_oauthlib import OAuth1
+from requests_oauthlib import OAuth2Session
+from oauthlib.oauth2 import BackendApplicationClient
 from xml.etree.ElementTree import *
 
 from get_mention_dict import get_mention_dict
@@ -352,7 +353,9 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
     NAME = os.getenv("TEXTRA_API_NAME")
     KEY = os.getenv("TEXTRA_API_KEY")
     SECRET = os.getenv("TEXTRA_API_SECRET")
-    URL = "https://mt-auto-minhon-mlt.ucri.jgn-x.jp/api/mt/generalNT_en_ja/"
+    URL = "https://mt-auto-minhon-mlt.ucri.jgn-x.jp"
+    api_name  = 'mt' # API名 (https://${ドメイン}/api/mt/generalNT_ja_en/ の場合は、"mt")
+    api_param = 'generalNT_en_ja' # API値 (https://${ドメイン}/api/mt/generalNT_ja_en/ の場合は、"generalNT_ja_en")
     sleep_time = 1
     
     # mask latex mathline
@@ -360,15 +363,23 @@ def get_translated_text_via_textra_api(from_lang: str, to_lang: str, from_text: 
     print(repr(from_text))
     from_text = mask(labels, from_text)
 
-    consumer = OAuth1(KEY , SECRET)
+    client = BackendApplicationClient(client_id=KEY)
+    oauth = OAuth2Session(client=client)
 
-    params = {
-        'key': KEY,
-        'name': NAME,
-        'text': from_text,
-    }    # その他のパラメータについては、各APIのリクエストパラメータに従って設定してください。
+    token_url = URL + '/oauth2/token.php'
+    token = oauth.fetch_token(token_url=token_url, client_id=KEY, client_secret=SECRET)
+
     try:
-        res = requests.post(URL , data=params , auth=consumer,timeout=15.0)
+        params = {
+            'access_token': token['access_token'],
+            'key': KEY,
+            'name': NAME,
+            'api_name'    : api_name,               # API名
+            'api_param'   : api_param,
+            'text': from_text,
+        }    # その他のパラメータについては、各APIのリクエストパラメータに従って設定してください。
+        
+        res = requests.post(URL + '/api/?', data=params , timeout=15.0)
         time.sleep(sleep_time)
 
         res.encoding = 'utf-8'
