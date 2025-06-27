@@ -500,10 +500,26 @@ def main():
         arxiv_query = f'({subject}) AND ' \
                       f'submittedDate:' \
                       f'[{previous_deadline_str} TO {deadline_str}]'
-        articles = arxiv.query(query=arxiv_query,
-                               max_results=1000,
-                               sort_by='submittedDate',
-                               iterative=False)
+        
+        # 新しいarxiv APIを使用
+        client = arxiv.Client()
+        search = arxiv.Search(
+            query=arxiv_query,
+            max_results=1000,
+            sort_by=arxiv.SortCriterion.SubmittedDate
+        )
+        
+        # 結果を辞書形式に変換して既存のコードと互換性を保つ
+        articles = []
+        for result in client.results(search):
+            article_dict = {
+                'arxiv_url': result.entry_id,
+                'title': result.title,
+                'authors': [author.name for author in result.authors],
+                'summary': result.summary
+            }
+            articles.append(article_dict)
+        
         print(arxiv_query)
         results = search_keyword(articles, keywords, score_threshold)
 
